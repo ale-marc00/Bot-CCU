@@ -66,6 +66,8 @@ module.exports = {
         let connection;
 
         try {
+            await interaction.deferReply();
+
             const presenze = interaction.options.getString("presenze");
             const coordinatori = interaction.options.getString("coordinatori");
             const esito = interaction.options.getString("esito");
@@ -255,7 +257,7 @@ module.exports = {
                 embed.setImage(archivioImageUrl);
             }
 
-            await interaction.reply({
+            await interaction.editReply({
                 embeds: [embed],
             });
 
@@ -275,10 +277,10 @@ module.exports = {
                 }
             }
 
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({
+            if (interaction.deferred || interaction.replied) {
+                await interaction.editReply({
                     content: "C'è stato un errore durante la creazione del report.",
-                    ephemeral: true,
+                    embeds: [],
                 });
             } else {
                 await interaction.reply({
