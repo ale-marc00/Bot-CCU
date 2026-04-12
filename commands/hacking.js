@@ -80,24 +80,48 @@ module.exports = {
             const dataFormattata = dataOperazione.toLocaleString("it-IT");
             const dataPerDatabase = dataOperazione.toISOString().slice(0, 19).replace("T", " ");
 
+            const inizioGiornata = new Date();
+            inizioGiornata.setHours(0, 0, 0, 0);
+
+            const fineGiornata = new Date();
+            fineGiornata.setHours(23, 59, 59, 999);
+
+            const inizioGiornataDB = inizioGiornata.toISOString().slice(0, 19).replace("T", " ");
+            const fineGiornataDB = fineGiornata.toISOString().slice(0, 19).replace("T", " ");
+
             if (esito === "positivo" && arresti === null) {
-                return await interaction.reply({
+                return await interaction.editReply({
                     content: "Se l'esito è positivo, devi inserire il numero di arresti.",
-                    ephemeral: true,
                 });
             }
 
             if (esito === "positivo" && !refurtiva) {
-                return await interaction.reply({
+                return await interaction.editReply({
                     content: "Se l'esito è positivo, devi inserire la refurtiva.",
-                    ephemeral: true,
                 });
             }
 
             if (esito === "positivo" && !refurtivaimg) {
-                return await interaction.reply({
+                return await interaction.editReply({
                     content: "Se l'esito è positivo, devi allegare l'immagine della refurtiva.",
-                    ephemeral: true,
+                });
+            }
+
+            connection = await pool.getConnection();
+
+            // Controllo limite massimo di 3 report al giorno
+            const [rows] = await connection.execute(
+                `SELECT COUNT(*) AS totale
+                 FROM ccu
+                 WHERE created_at BETWEEN ? AND ?`,
+                [inizioGiornataDB, fineGiornataDB]
+            );
+
+            const totaleOggi = rows[0].totale;
+
+            if (totaleOggi >= 3) {
+                return await interaction.editReply({
+                    content: "Oggi il comando /hacking ha già raggiunto il limite massimo di 3 utilizzi.",
                 });
             }
 
@@ -111,9 +135,8 @@ module.exports = {
                 );
 
                 if (!archivioChannel || !archivioChannel.isTextBased()) {
-                    return await interaction.reply({
+                    return await interaction.editReply({
                         content: "Il canale archivio refurtiva non è valido o non è accessibile.",
-                        ephemeral: true,
                     });
                 }
 
@@ -144,11 +167,13 @@ module.exports = {
             const idsAltoComando = estraiIdsDiscord(altoComando);
 
             const partecipantiPresenze = await creaPartecipantiDaIds(interaction.guild, idsPresenze, "presenza");
+
             const partecipantiCoordinatori = await creaPartecipantiDaIds(
                 interaction.guild,
                 idsCoordinatori,
                 "coordinatore"
             );
+
             const partecipantiAltoComando = await creaPartecipantiDaIds(
                 interaction.guild,
                 idsAltoComando,
@@ -161,7 +186,6 @@ module.exports = {
                 ...partecipantiAltoComando,
             ];
 
-            connection = await pool.getConnection();
             await connection.beginTransaction();
 
             const [result] = await connection.execute(
