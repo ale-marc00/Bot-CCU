@@ -109,10 +109,9 @@ module.exports = {
 
             connection = await pool.getConnection();
 
-            // Controllo limite massimo di 3 report al giorno
             const [rows] = await connection.execute(
                 `SELECT COUNT(*) AS totale
-                 FROM ccu
+                 FROM pattugliamenti
                  WHERE created_at BETWEEN ? AND ?`,
                 [inizioGiornataDB, fineGiornataDB]
             );
@@ -213,17 +212,17 @@ module.exports = {
                 ]
             );
 
-            const ccuId = result.insertId;
+            const pattugliamentiId = result.insertId;
 
             for (const partecipante of tuttiPartecipanti) {
                 await connection.execute(
                     `INSERT INTO pattugliamenti_partecipanti (
-                        ccu_id,
+                        pattugliamenti_id,
                         discord_id,
                         discord_username,
                         ruolo
                     ) VALUES (?, ?, ?, ?)`,
-                    [ccuId, partecipante.discord_id, partecipante.discord_username, partecipante.ruolo]
+                    [pattugliamentiId, partecipante.discord_id, partecipante.discord_username, partecipante.ruolo]
                 );
             }
 
@@ -289,7 +288,7 @@ module.exports = {
             console.log("Archivio channel ID:", archivioChannelId);
             console.log("Archivio message ID:", archivioMessageId);
             console.log("Archivio image URL:", archivioImageUrl);
-            console.log("ID report salvato:", ccuId);
+            console.log("ID report salvato:", pattugliamentiId);
         } catch (error) {
             console.error("Errore comando /hacking:", error);
 
