@@ -281,11 +281,6 @@ module.exports = {
             .setDescription("Un nuovo report hacking è stato effettuato e salvato nel database.")
             .addFields(
                 {
-                    name: "ID Globale",
-                    value: idGlobale,
-                    inline: true,
-                },
-                {
                     name: "Data operazione",
                     value: dataFormattata,
                     inline: true,
@@ -315,6 +310,11 @@ module.exports = {
                 {
                     name: "Refurtiva",
                     value: refurtiva || "//",
+                },
+                {
+                    name: "ID Globale",
+                    value: idGlobale,
+                    inline: true,
                 }
             )
             .setThumbnail(interaction.client.user.displayAvatarURL())
