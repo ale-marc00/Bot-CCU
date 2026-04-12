@@ -27,6 +27,46 @@ async function creaPartecipantiDaIds(guild, ids, ruolo) {
     return risultati;
 }
 
+function generaIdGlobale() {
+    const lettere = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let codice = "";
+
+    for (let i = 0; i < 5; i++) {
+        const indiceCasuale = Math.floor(Math.random() * lettere.length);
+        codice += lettere[indiceCasuale];
+    }
+
+    return codice;
+}
+
+async function generaIdGlobaleUnico(connection) {
+    let idGlobale;
+    let esiste = true;
+
+    while (esiste) {
+        idGlobale = generaIdGlobale();
+
+        const [rows] = await connection.execute(
+            `
+            SELECT id_globale
+            FROM hacking
+            WHERE id_globale = ?
+
+            UNION
+
+            SELECT id_globale
+            FROM pattugliamenti
+            WHERE id_globale = ?
+            `,
+            [idGlobale, idGlobale]
+        );
+
+        esiste = rows.length > 0;
+    }
+
+    return idGlobale;
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
     .setName("hacking")
@@ -109,6 +149,8 @@ module.exports = {
 
             connection = await pool.getConnection();
 
+            const idGlobale = await generaIdGlobaleUnico(connection);
+
             const [rows] = await connection.execute(
                 `SELECT COUNT(*) AS totale
                  FROM hacking
@@ -189,6 +231,7 @@ module.exports = {
 
             const [result] = await connection.execute(
                 `INSERT INTO hacking (
+                    id_globale,
                     autore_discord_id,
                     autore_discord_username,
                     esito,
@@ -200,6 +243,7 @@ module.exports = {
                     created_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
+                    idGlobale,
                     interaction.user.id,
                     interaction.user.username,
                     esito,
@@ -267,6 +311,11 @@ module.exports = {
                 {
                     name: "Refurtiva",
                     value: refurtiva || "//",
+                },
+                {
+                    name: "ID Globale",
+                    value: idGlobale,
+                    inline: true,
                 }
             )
             .setThumbnail(interaction.client.user.displayAvatarURL())
