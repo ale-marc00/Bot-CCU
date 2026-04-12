@@ -1,4 +1,31 @@
 const {SlashCommandBuilder, EmbedBuilder} = require("discord.js");
+const pool = require("../connessione");
+
+function estraiIdsDiscord(testo) {
+    if (!testo) return [];
+    const matches = testo.match(/\d{17,20}/g);
+    return matches ? [...new Set(matches)] : [];
+}
+
+async function creaPartecipantiDaIds(guild, ids, ruolo) {
+    const risultati = [];
+
+    for (const id of ids) {
+        try {
+            const membro = await guild.members.fetch(id);
+
+            risultati.push({
+                discord_id: membro.user.id,
+                discord_username: membro.user.username,
+                ruolo,
+            });
+        } catch (error) {
+            console.error(`Impossibile recuperare il membro ${id}:`, error.message);
+        }
+    }
+
+    return risultati;
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -36,6 +63,8 @@ module.exports = {
     ),
 
     async execute(interaction) {
+        let connection;
+
         try {
             const presenze = interaction.options.getString("presenze");
             const coordinatori = interaction.options.getString("coordinatori");
@@ -108,6 +137,72 @@ module.exports = {
                 archivioImageUrl = allegatoArchivio ? allegatoArchivio.url : null;
             }
 
+            const idsPresenze = estraiIdsDiscord(presenze);
+            const idsCoordinatori = estraiIdsDiscord(coordinatori);
+            const idsAltoComando = estraiIdsDiscord(altoComando);
+
+            const partecipantiPresenze = await creaPartecipantiDaIds(interaction.guild, idsPresenze, "presenza");
+            const partecipantiCoordinatori = await creaPartecipantiDaIds(
+                interaction.guild,
+                idsCoordinatori,
+                "coordinatore"
+            );
+            const partecipantiAltoComando = await creaPartecipantiDaIds(
+                interaction.guild,
+                idsAltoComando,
+                "altocomando"
+            );
+
+            const tuttiPartecipanti = [
+                ...partecipantiPresenze,
+                ...partecipantiCoordinatori,
+                ...partecipantiAltoComando,
+            ];
+
+            connection = await pool.getConnection();
+            await connection.beginTransaction();
+
+            const [result] = await connection.execute(
+                `INSERT INTO ccu (
+                    autore_discord_id,
+                    autore_discord_username,
+                    esito,
+                    arresti,
+                    refurtiva,
+                    refurtiva_img_url,
+                    archivio_channel_id,
+                    archivio_message_id,
+                    created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    interaction.user.id,
+                    interaction.user.username,
+                    esito,
+                    arresti,
+                    refurtiva,
+                    archivioImageUrl,
+                    archivioChannelId,
+                    archivioMessageId,
+                    dataPerDatabase,
+                ]
+            );
+
+            const ccuId = result.insertId;
+
+            for (const partecipante of tuttiPartecipanti) {
+                await connection.execute(
+                    `INSERT INTO CCU_partecipanti (
+                        ccu_id,
+                        discord_id,
+                        discord_username,
+                        ruolo
+                    ) VALUES (?, ?, ?, ?)`,
+                    [ccuId, partecipante.discord_id, partecipante.discord_username, partecipante.ruolo]
+                );
+            }
+
+            await connection.commit();
+
             const embed = new EmbedBuilder()
             .setColor(0x1f3c88)
             .setAuthor({
@@ -115,7 +210,7 @@ module.exports = {
                 iconURL: interaction.client.user.displayAvatarURL(),
             })
             .setTitle("Nuovo Hacking!")
-            .setDescription("Un nuovo report hacking è stato effettuato.")
+            .setDescription("Un nuovo report hacking è stato effettuato e salvato nel database.")
             .addFields(
                 {
                     name: "Data operazione",
@@ -168,14 +263,17 @@ module.exports = {
             console.log("Archivio channel ID:", archivioChannelId);
             console.log("Archivio message ID:", archivioMessageId);
             console.log("Archivio image URL:", archivioImageUrl);
-
-            // Qui dopo salverai nel database:
-            // dataPerDatabase
-            // archivioChannelId
-            // archivioMessageId
-            // archivioImageUrl
+            console.log("ID report salvato:", ccuId);
         } catch (error) {
             console.error("Errore comando /hacking:", error);
+
+            if (connection) {
+                try {
+                    await connection.rollback();
+                } catch (rollbackError) {
+                    console.error("Errore rollback:", rollbackError);
+                }
+            }
 
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
@@ -187,6 +285,10 @@ module.exports = {
                     content: "C'è stato un errore durante la creazione del report.",
                     ephemeral: true,
                 });
+            }
+        } finally {
+            if (connection) {
+                connection.release();
             }
         }
     },
