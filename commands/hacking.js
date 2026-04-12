@@ -193,7 +193,7 @@ module.exports = {
 
             for (const partecipante of tuttiPartecipanti) {
                 await connection.execute(
-                    `INSERT INTO CCU_partecipanti (
+                    `INSERT INTO ccu_partecipanti (
                         ccu_id,
                         discord_id,
                         discord_username,
