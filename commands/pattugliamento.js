@@ -69,7 +69,7 @@ async function generaIdGlobaleUnico(connection) {
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("pattugliamenti")
+    .setName("pattugliamento")
     .setDescription("Compila il report pattugliamento CCU")
 
     .addStringOption((option) =>
