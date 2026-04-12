@@ -69,8 +69,8 @@ async function generaIdGlobaleUnico(connection) {
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("hacking")
-    .setDescription("Compila il report hacking CCU")
+    .setName("pattugliamenti")
+    .setDescription("Compila il report pattugliamento CCU")
 
     .addStringOption((option) =>
         option.setName("presenze").setDescription("Inserisci i nomi o tag delle presenze").setRequired(true)
@@ -149,6 +149,8 @@ module.exports = {
 
             connection = await pool.getConnection();
 
+            const idGlobale = await generaIdGlobaleUnico(connection);
+
             const [rows] = await connection.execute(
                 `SELECT COUNT(*) AS totale
                  FROM pattugliamenti
@@ -160,7 +162,7 @@ module.exports = {
 
             if (totaleOggi >= 3) {
                 return await interaction.editReply({
-                    content: "Oggi il comando /hacking ha già raggiunto il limite massimo di 3 utilizzi.",
+                    content: "Oggi il comando /pattugliamenti ha già raggiunto il limite massimo di 3 utilizzi.",
                 });
             }
 
@@ -182,6 +184,7 @@ module.exports = {
                 const messaggioArchivio = await archivioChannel.send({
                     content:
                         `📦 Archivio Refurtiva CCU\n` +
+                        `ID Globale: ${idGlobale}\n` +
                         `Richiesto da: ${interaction.user.tag}\n` +
                         `Utente ID: ${interaction.user.id}\n` +
                         `Data: ${dataFormattata}\n` +
@@ -206,13 +209,11 @@ module.exports = {
             const idsAltoComando = estraiIdsDiscord(altoComando);
 
             const partecipantiPresenze = await creaPartecipantiDaIds(interaction.guild, idsPresenze, "presenza");
-
             const partecipantiCoordinatori = await creaPartecipantiDaIds(
                 interaction.guild,
                 idsCoordinatori,
                 "coordinatore"
             );
-
             const partecipantiAltoComando = await creaPartecipantiDaIds(
                 interaction.guild,
                 idsAltoComando,
@@ -239,7 +240,7 @@ module.exports = {
                     archivio_channel_id,
                     archivio_message_id,
                     created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     idGlobale,
                     interaction.user.id,
@@ -273,12 +274,17 @@ module.exports = {
             const embed = new EmbedBuilder()
             .setColor(0x1f3c88)
             .setAuthor({
-                name: "CCU - Report Hacking",
+                name: "CCU - Report Pattugliamento",
                 iconURL: interaction.client.user.displayAvatarURL(),
             })
             .setTitle("Nuovo Pattugliamento!")
             .setDescription("Un nuovo report pattugliamento è stato effettuato e salvato nel database.")
             .addFields(
+                {
+                    name: "ID Globale",
+                    value: idGlobale,
+                    inline: true,
+                },
                 {
                     name: "Data operazione",
                     value: dataFormattata,
@@ -309,11 +315,6 @@ module.exports = {
                 {
                     name: "Refurtiva",
                     value: refurtiva || "//",
-                },
-                {
-                    name: "ID Globale",
-                    value: idGlobale,
-                    inline: true,
                 }
             )
             .setThumbnail(interaction.client.user.displayAvatarURL())
@@ -331,13 +332,14 @@ module.exports = {
                 embeds: [embed],
             });
 
+            console.log("ID Globale:", idGlobale);
             console.log("Data per database:", dataPerDatabase);
             console.log("Archivio channel ID:", archivioChannelId);
             console.log("Archivio message ID:", archivioMessageId);
             console.log("Archivio image URL:", archivioImageUrl);
             console.log("ID report salvato:", pattugliamentiId);
         } catch (error) {
-            console.error("Errore comando /hacking:", error);
+            console.error("Errore comando /pattugliamenti:", error);
 
             if (connection) {
                 try {

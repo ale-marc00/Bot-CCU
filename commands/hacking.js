@@ -184,6 +184,7 @@ module.exports = {
                 const messaggioArchivio = await archivioChannel.send({
                     content:
                         `📦 Archivio Refurtiva CCU\n` +
+                        `ID Globale: ${idGlobale}\n` +
                         `Richiesto da: ${interaction.user.tag}\n` +
                         `Utente ID: ${interaction.user.id}\n` +
                         `Data: ${dataFormattata}\n` +
@@ -208,13 +209,11 @@ module.exports = {
             const idsAltoComando = estraiIdsDiscord(altoComando);
 
             const partecipantiPresenze = await creaPartecipantiDaIds(interaction.guild, idsPresenze, "presenza");
-
             const partecipantiCoordinatori = await creaPartecipantiDaIds(
                 interaction.guild,
                 idsCoordinatori,
                 "coordinatore"
             );
-
             const partecipantiAltoComando = await creaPartecipantiDaIds(
                 interaction.guild,
                 idsAltoComando,
@@ -241,7 +240,7 @@ module.exports = {
                     archivio_channel_id,
                     archivio_message_id,
                     created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     idGlobale,
                     interaction.user.id,
@@ -282,6 +281,11 @@ module.exports = {
             .setDescription("Un nuovo report hacking è stato effettuato e salvato nel database.")
             .addFields(
                 {
+                    name: "ID Globale",
+                    value: idGlobale,
+                    inline: true,
+                },
+                {
                     name: "Data operazione",
                     value: dataFormattata,
                     inline: true,
@@ -311,11 +315,6 @@ module.exports = {
                 {
                     name: "Refurtiva",
                     value: refurtiva || "//",
-                },
-                {
-                    name: "ID Globale",
-                    value: idGlobale,
-                    inline: true,
                 }
             )
             .setThumbnail(interaction.client.user.displayAvatarURL())
@@ -333,6 +332,7 @@ module.exports = {
                 embeds: [embed],
             });
 
+            console.log("ID Globale:", idGlobale);
             console.log("Data per database:", dataPerDatabase);
             console.log("Archivio channel ID:", archivioChannelId);
             console.log("Archivio message ID:", archivioMessageId);
