@@ -189,7 +189,7 @@ module.exports = {
             await connection.beginTransaction();
 
             const [result] = await connection.execute(
-                `INSERT INTO ccu (
+                `INSERT INTO hacking (
                     autore_discord_id,
                     autore_discord_username,
                     esito,
@@ -217,7 +217,7 @@ module.exports = {
 
             for (const partecipante of tuttiPartecipanti) {
                 await connection.execute(
-                    `INSERT INTO ccu_partecipanti (
+                    `INSERT INTO hacking_partecipanti (
                         ccu_id,
                         discord_id,
                         discord_username,
