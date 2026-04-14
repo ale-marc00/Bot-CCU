@@ -39,6 +39,17 @@ function generaIdGlobale() {
     return codice;
 }
 
+function generaIdGlobale() {
+    const lettere = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let codice = "";
+
+    for (let i = 0; i < 5; i++) {
+        codice += lettere.charAt(Math.floor(Math.random() * lettere.length));
+    }
+
+    return codice;
+}
+
 async function generaIdGlobaleUnico(connection) {
     let idGlobale;
     let esiste = true;
@@ -48,15 +59,9 @@ async function generaIdGlobaleUnico(connection) {
 
         const [rows] = await connection.execute(
             `
-            SELECT id_globale
-            FROM hacking
-            WHERE id_globale = ?
-
+            SELECT id_globale FROM ccu WHERE id_globale = ?
             UNION
-
-            SELECT id_globale
-            FROM pattugliamenti
-            WHERE id_globale = ?
+            SELECT id_globale FROM pattugliamenti WHERE id_globale = ?
             `,
             [idGlobale, idGlobale]
         );

@@ -32,8 +32,7 @@ function generaIdGlobale() {
     let codice = "";
 
     for (let i = 0; i < 5; i++) {
-        const indiceCasuale = Math.floor(Math.random() * lettere.length);
-        codice += lettere[indiceCasuale];
+        codice += lettere.charAt(Math.floor(Math.random() * lettere.length));
     }
 
     return codice;
@@ -48,15 +47,9 @@ async function generaIdGlobaleUnico(connection) {
 
         const [rows] = await connection.execute(
             `
-            SELECT id_globale
-            FROM hacking
-            WHERE id_globale = ?
-
+            SELECT id_globale FROM ccu WHERE id_globale = ?
             UNION
-
-            SELECT id_globale
-            FROM pattugliamenti
-            WHERE id_globale = ?
+            SELECT id_globale FROM pattugliamenti WHERE id_globale = ?
             `,
             [idGlobale, idGlobale]
         );
@@ -160,9 +153,9 @@ module.exports = {
 
             const totaleOggi = rows[0].totale;
 
-            if (totaleOggi >= 3) {
+            if (totaleOggi >= 2) {
                 return await interaction.editReply({
-                    content: "Oggi il comando /pattugliamenti ha già raggiunto il limite massimo di 3 utilizzi.",
+                    content: "Oggi il comando /pattugliamenti ha già raggiunto il limite massimo di 2 utilizzi.",
                 });
             }
 
