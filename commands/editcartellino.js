@@ -3,8 +3,10 @@ const pool = require("../connessione");
 
 function estraiIdsDiscord(testo) {
     if (!testo) return [];
-    const matches = testo.match(/\d{17,20}/g);
-    return matches ? [...new Set(matches)] : [];
+
+    const matches = [...testo.matchAll(/<@!?(\d{17,20})>/g)];
+
+    return [...new Set(matches.map((match) => match[1]))];
 }
 
 async function creaPartecipantiDaIds(guild, ids, ruolo) {
@@ -14,11 +16,13 @@ async function creaPartecipantiDaIds(guild, ids, ruolo) {
         try {
             const membro = await guild.members.fetch(id);
 
-            risultati.push({
-                discord_id: membro.user.id,
-                discord_username: membro.user.username,
-                ruolo,
-            });
+            if (!membro.user.bot) {
+                risultati.push({
+                    discord_id: membro.user.id,
+                    discord_username: membro.user.username,
+                    ruolo,
+                });
+            }
         } catch (error) {
             console.error(`Impossibile recuperare il membro ${id}:`, error.message);
         }
