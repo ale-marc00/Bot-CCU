@@ -47,7 +47,7 @@ async function generaIdGlobaleUnico(connection) {
 
         const [rows] = await connection.execute(
             `
-            SELECT id_globale FROM ccu WHERE id_globale = ?
+            SELECT id_globale FROM hacking WHERE id_globale = ?
             UNION
             SELECT id_globale FROM pattugliamenti WHERE id_globale = ?
             `,
@@ -155,7 +155,7 @@ module.exports = {
 
             if (totaleOggi >= 2) {
                 return await interaction.editReply({
-                    content: "Oggi il comando /pattugliamenti ha già raggiunto il limite massimo di 2 utilizzi.",
+                    content: "Oggi il comando /pattugliamento ha già raggiunto il limite massimo di 2 utilizzi.",
                 });
             }
 
@@ -321,9 +321,19 @@ module.exports = {
                 embed.setImage(archivioImageUrl);
             }
 
-            await interaction.editReply({
+            const messaggioReport = await interaction.editReply({
                 embeds: [embed],
             });
+
+            await connection.execute(
+                `
+                UPDATE pattugliamenti
+                SET channel_id = ?,
+                    message_id = ?
+                WHERE id = ?
+                `,
+                [messaggioReport.channel.id, messaggioReport.id, pattugliamentiId]
+            );
 
             console.log("ID Globale:", idGlobale);
             console.log("Data per database:", dataPerDatabase);
@@ -332,7 +342,7 @@ module.exports = {
             console.log("Archivio image URL:", archivioImageUrl);
             console.log("ID report salvato:", pattugliamentiId);
         } catch (error) {
-            console.error("Errore comando /pattugliamenti:", error);
+            console.error("Errore comando /pattugliamento:", error);
 
             if (connection) {
                 try {

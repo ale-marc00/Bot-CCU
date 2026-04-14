@@ -32,18 +32,6 @@ function generaIdGlobale() {
     let codice = "";
 
     for (let i = 0; i < 5; i++) {
-        const indiceCasuale = Math.floor(Math.random() * lettere.length);
-        codice += lettere[indiceCasuale];
-    }
-
-    return codice;
-}
-
-function generaIdGlobale() {
-    const lettere = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let codice = "";
-
-    for (let i = 0; i < 5; i++) {
         codice += lettere.charAt(Math.floor(Math.random() * lettere.length));
     }
 
@@ -59,7 +47,7 @@ async function generaIdGlobaleUnico(connection) {
 
         const [rows] = await connection.execute(
             `
-            SELECT id_globale FROM ccu WHERE id_globale = ?
+            SELECT id_globale FROM hacking WHERE id_globale = ?
             UNION
             SELECT id_globale FROM pattugliamenti WHERE id_globale = ?
             `,
@@ -333,9 +321,19 @@ module.exports = {
                 embed.setImage(archivioImageUrl);
             }
 
-            await interaction.editReply({
+            const messaggioReport = await interaction.editReply({
                 embeds: [embed],
             });
+
+            await connection.execute(
+                `
+                UPDATE hacking
+                SET channel_id = ?,
+                    message_id = ?
+                WHERE id = ?
+                `,
+                [messaggioReport.channel.id, messaggioReport.id, hackingId]
+            );
 
             console.log("ID Globale:", idGlobale);
             console.log("Data per database:", dataPerDatabase);
