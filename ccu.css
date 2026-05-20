@@ -1,0 +1,299 @@
+:root {
+    --sfondo: #0b1220;
+    --box: #ffffff;
+    --testo: #1f2937;
+    --testo-chiaro: #e5e7eb;
+    --grigio: #64748b;
+    --blu: #2563eb;
+    --blu-hover: #1d4ed8;
+    --bordo: #e5e7eb;
+    --bordo-scuro: #334155;
+    --verde-soft: #e8f8ee;
+    --verde-testo: #166534;
+    --rosso-soft: #fff1f1;
+    --rosso-hover: #ffe7e7;
+    --rosso-testo: #991b1b;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0 18px 35px;
+    min-height: 100vh;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #0b1220;
+    color: var(--testo);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* HEADER */
+
+.header {
+    max-width: 1050px;
+    margin: 26px auto 22px;
+    padding: 26px 20px;
+    background: #111827;
+    border: 1px solid var(--bordo-scuro);
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
+}
+
+.rtitolo {
+    margin: 0;
+    color: white;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.rtitolo::after {
+    content: "Classifica settimanale operatori";
+    display: block;
+    margin-top: 8px;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.8px;
+}
+
+/* TABELLA */
+
+.table-wrapper {
+    max-width: 1050px;
+    margin: 0 auto 30px;
+    background: var(--box);
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 15px 32px rgba(0, 0, 0, 0.25);
+    width: 900px;
+}
+
+.table-container {
+    width: 100%;
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th,
+td {
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--bordo);
+    text-align: center;
+    font-size: 15px;
+}
+
+th {
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+td:first-child,
+th:first-child {
+    text-align: left;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* RIGHE */
+
+.riga-promosso td {
+    background: var(--verde-soft);
+    color: var(--verde-testo);
+}
+
+.riga-non-promosso td {
+    background: var(--rosso-soft);
+    color: var(--rosso-testo);
+}
+
+.riga-promosso:hover td {
+    background: #ddf4e6;
+}
+
+.riga-non-promosso:hover td {
+    background: var(--rosso-hover);
+}
+
+/* PRIMA RIGA / HEADER TABELLA */
+
+.tit-tabella th,
+tr.tit-tabella th {
+    background: #f8fafc;
+    color: #334155;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+/* ICONA */
+
+.icon-user {
+    margin-right: 8px;
+}
+
+/* LOGIN */
+
+#login-box {
+    max-width: 380px;
+    margin: 90px auto;
+    padding: 28px;
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #dbe3ee;
+    text-align: center;
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.28);
+}
+
+#login-box input {
+    width: 100%;
+    height: 44px;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #111827;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+}
+
+#login-box input:focus {
+    background: white;
+    border-color: var(--blu);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#login-box button {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    background: var(--blu);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#login-box button:hover {
+    background: var(--blu-hover);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+    body {
+        padding: 0 10px 25px;
+    }
+
+    .header {
+        margin-top: 14px;
+        padding: 22px 14px;
+    }
+
+    .rtitolo {
+        font-size: 28px;
+    }
+
+    .rtitolo::after {
+        font-size: 12px;
+    }
+
+    th,
+    td {
+        padding: 12px 10px;
+        font-size: 13px;
+    }
+
+    th {
+        font-size: 11px;
+    }
+}
+.riquadro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    margin: 18px 0 10px;
+}
+
+.riquadro {
+    width: 220px;
+    min-height: 70px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.riquadro h3 {
+    font-size: 15px;
+    margin: 0 0 6px 0;
+    line-height: 1.2;
+}
+
+.riquadro p {
+    font-size: 15px;
+    margin: 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+.riq-tab {
+    display: inline-flex;
+    width: 900px;
+    gap: 10px;
+}
+
+.cerca {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 18px 18px 10px;
+    background: #f8fafc;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+#cercaAgente {
+    width: 100%;
+    max-width: 360px;
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 2px solid #0b1220;
+    outline: none;
+    font-size: 15px;
+    font-weight: 500;
+    background: white;
+    color: #111827;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+#cercaAgente::placeholder {
+    color: var(--bordo-scuro);
+}
+
+#cercaAgente:focus {
+    background: #ffffff;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
